@@ -139,11 +139,3 @@ SELECT class.oid                       as "OID",
 FROM pg_class class
          INNER JOIN pg_authid usr on usr.oid = class.relowner
 WHERE relname = 'table4';
-
-SELECT count(*) FROM table1;
-SELECT count(*) FROM table2;
-SELECT count(*) FROM table3;
-SELECT count(*) FROM table4;
-
-SELECT count(*) from get_raw_page('pg_toast.pg_toast_16455', 0);
-
