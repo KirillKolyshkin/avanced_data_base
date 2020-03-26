@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION addRuleForUpdate(tableName varchar, startId integer, 
 $$
 BEGIN
     EXECUTE format(
-            'CREATE OR REPLACE RULE redirect_update_to_%s AS ON UPDATE TO users WHERE NEW.id BETWEEN %s AND %s DO INSTEAD (INSERT INTO users VALUES (NEW.id + %s, NEW.name); DELETE from users where id = NEW.id)',
+            'CREATE OR REPLACE RULE redirect_update_to_%s AS ON UPDATE TO users WHERE NEW.id BETWEEN %s AND %s DO INSTEAD (INSERT INTO users VALUES ((random() * (999999 + 1)), NEW.name); DELETE from users where id = NEW.id)',
             tableName, startId, finishId, addingcost);
 END ;
 $$ language plpgsql;
@@ -96,19 +96,19 @@ FROM
 
 SELECT *
 FROM
-    addRuleForUpdate('users_1', 0, 99999);
+    addRuleForUpdate('users_1', 0, 99999, 100000);
 SELECT *
 FROM
-    addRuleForUpdate('users_2', 100000, 199999);
+    addRuleForUpdate('users_2', 100000, 199999, 100000);
 SELECT *
 FROM
-    addRuleForUpdate('users_3', 200000, 299999);
+    addRuleForUpdate('users_3', 200000, 299999,100000);
 SELECT *
 FROM
-    addRuleForUpdate('users_4', 300000, 399999);
+    addRuleForUpdate('users_4', 300000, 399999,100000);
 SELECT *
 FROM
-    addRuleForUpdate('users_5', 400000, 499999);
+    addRuleForUpdate('users_5', 400000, 499999,100000);
 SELECT *
 FROM
     addRuleForUpdate('users_6', 500000, 599999, 100000);
@@ -124,3 +124,17 @@ FROM
 SELECT *
 FROM
     addRuleForUpdate('users_10', 900000, 999999, -900000);
+
+CREATE FUNCTION insert() RETURNS void AS $$
+DECLARE
+  l int = 0;
+  h int = 999999;
+BEGIN
+  FOR i IN l..h
+  LOOP
+    INSERT INTO users (id, name) VALUES (random() * (999999 + 1), 'initname');
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT insert();
