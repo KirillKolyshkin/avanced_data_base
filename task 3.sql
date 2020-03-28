@@ -1,4 +1,3 @@
-
 create table users
 (
     id   integer,
@@ -36,9 +35,24 @@ CREATE OR REPLACE FUNCTION addRuleForUpdate(tableName varchar, startId integer, 
 $$
 BEGIN
     EXECUTE format(
-            'CREATE OR REPLACE RULE redirect_update_to_%s AS ON UPDATE TO users WHERE NEW.id BETWEEN %s AND %s DO INSTEAD(
-            INSERT INTO users VALUES (NEW.id + %s, NEW.name); DELETE FROM %s WHERE id = NEW.id)',
-            tableName, startId, finishId, addingCost, tableName);
+            'CREATE OR REPLACE RULE redirect_update_to_%s AS ON UPDATE TO users WHERE NEW.id BETWEEN %s AND %s DO INSTEAD( SELECT
+            insertRandomItem( NEW.name, NEW.id); DELETE FROM %s WHERE id = NEW.id)',
+            tableName, startId, finishId,tableName, tableName);
+END ;
+$$ language plpgsql;
+
+CREATE OR REPLACE FUNCTION insertRandomItem(newName varchar, oldId integer) RETURNS VOID AS
+$$
+DECLARE
+    t int = 0;
+    c int = 1;
+BEGIN
+    c = count(*) from users where id = oldId;
+    For i in 1..c
+        loop
+            t = random() * oldId;
+            INSERT INTO users VALUES (t, newName);
+        end loop;
 END ;
 $$ language plpgsql;
 
@@ -174,7 +188,7 @@ $$
 DECLARE
     t int = 0;
 BEGIN
-    FOR i IN 0..999999
+    FOR i IN 0..99999
         LOOP
             t = random() * 999999;
             INSERT INTO users (id, name) VALUES (t, 'initname');
