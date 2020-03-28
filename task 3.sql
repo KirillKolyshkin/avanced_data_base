@@ -50,7 +50,7 @@ BEGIN
     c = count(*) from users where id = oldId;
     For i in 1..c
         loop
-            t = random() * oldId;
+            t = random() * oldId - 1;
             INSERT INTO users VALUES (t, newName);
         end loop;
 END ;
