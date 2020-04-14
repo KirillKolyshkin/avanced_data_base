@@ -1,0 +1,100 @@
+create table main_table_2
+(
+    id   int,
+    data varchar
+);
+create index idx_tables_2 on main_table_2 (id);
+
+drop function on_insert_trigger();
+CREATE OR REPLACE FUNCTION on_insert_trigger() RETURNS TRIGGER AS
+$$
+BEGIN
+    IF (NEW.id BETWEEN 1 and 100000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new1')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new1',
+                           'table_new1', 1, 100000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new1', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 100001 and 200000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new2')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new2',
+                           'table_new2', 100001, 200000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new2', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 200001 and 300000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new3')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new3',
+                           'table_new3', 200001, 300000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new3', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 300001 and 400000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new4')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new4',
+                           'table_new4', 300001, 400000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new4', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 400001 and 500000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new5')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new5',
+                           'table_new5', 400001, 500000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new5', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 500001 and 600000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new6')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new6',
+                           'table_new6', 500001, 600000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new6', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 600001 and 700000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new7')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new7',
+                           'table_new7', 600001, 700000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new7', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 700001 and 800000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new8')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new8',
+                           'table_new8', 700001, 800000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new8', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 800001 and 900000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new9')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new9',
+                           'table_new9', 800001, 900000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new9', NEW.id, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 900001 and 1000000) THEN
+        IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new10')) THEN
+            EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new10',
+                           'table_new10', 900001, 1000000);
+        END IF;
+        EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new10', NEW.id, NEW.data);
+    END IF;
+    RETURN NULL;
+END ;
+$$ language plpgsql;
+
+CREATE TRIGGER init_trigger
+    BEFORE INSERT
+    ON main_table_2
+    FOR EACH ROW
+EXECUTE function on_insert_trigger();
