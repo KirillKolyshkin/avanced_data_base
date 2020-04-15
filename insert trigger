@@ -5,7 +5,6 @@ create table main_table_2
 );
 create index idx_tables_2 on main_table_2 (id);
 
-drop function on_insert_trigger();
 CREATE OR REPLACE FUNCTION on_insert_trigger() RETURNS TRIGGER AS
 $$
 BEGIN
@@ -84,7 +83,8 @@ BEGIN
     IF (NEW.id BETWEEN 900001 and 1000000) THEN
         IF (NOT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name = 'table_new10')) THEN
             EXECUTE FORMAT('CREATE TABLE %s () INHERITS(main_table_2);' ||
-                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);', 'table_new10',
+                           'ALTER TABLE %s ADD CONSTRAINT partition_check CHECK (id >= %s and id <= %s);',
+                           'table_new10',
                            'table_new10', 900001, 1000000);
         END IF;
         EXECUTE FORMAT('INSERT INTO %s VALUES (%s, ''%s'');', 'table_new10', NEW.id, NEW.data);
@@ -98,3 +98,14 @@ CREATE TRIGGER init_trigger
     ON main_table_2
     FOR EACH ROW
 EXECUTE function on_insert_trigger();
+
+CREATE OR REPLACE FUNCTION insert_test() RETURNS void AS
+$$
+BEGIN
+    FOR i IN 1..1000000
+        LOOP
+            INSERT INTO main_table_2 (id, data) VALUES (i, 'initname');
+        END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+SELECT insert_test();
