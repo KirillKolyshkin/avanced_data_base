@@ -1,0 +1,64 @@
+
+CREATE OR REPLACE FUNCTION on_update_trigger() RETURNS TRIGGER AS
+$$
+BEGIN
+    IF (NEW.id BETWEEN 1 and 100000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new1', NEW.id, NEW.data, 'table_new2', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 100001 and 200000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new2', NEW.id, NEW.data, 'table_new3', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 200001 and 300000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new3', NEW.id, NEW.data, 'table_new4', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 300001 and 400000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new4', NEW.id, NEW.data, 'table_new5', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 400001 and 500000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new5', NEW.id, NEW.data, 'table_new6', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 500001 and 600000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new6', NEW.id, NEW.data, 'table_new7', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 600001 and 700000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new7', NEW.id, NEW.data, 'table_new8', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 700001 and 800000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new8', NEW.id, NEW.data, 'table_new9', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 800001 and 900000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new9', NEW.id, NEW.data, 'table_new10', OLD.id + 100000, NEW.data);
+    END IF;
+    IF (NEW.id BETWEEN 900001 and 1000000) THEN
+        EXECUTE FORMAT('DELETE FROM %s WHERE (id = %s and data != ''%s'');' ||
+                       'INSERT INTO %s VALUES (%s, ''%s''', 'table_new10', NEW.id, NEW.data, 'table_new1', OLD.id - 900000, NEW.data);
+    END IF;
+    RETURN NULL;
+END;
+$$ language plpgsql;
+
+CREATE TRIGGER update_trigger_1
+    BEFORE UPDATE
+    ON main_table_2
+    FOR EACH ROW
+EXECUTE procedure on_update_trigger();
+
+CREATE OR REPLACE FUNCTION update_maintable() RETURNS void AS
+$$
+BEGIN
+    FOR i IN 1..100
+        LOOP
+            UPDATE main_table_2 set data = 'zcaz.dkjcanjknc;`m' where id = i;
+        END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+SELECT update_maintable();
