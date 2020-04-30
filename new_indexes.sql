@@ -1,4 +1,18 @@
 
+
+create function random_string_new(integer) returns text
+    language sql
+as
+$$
+SELECT array_to_string(
+               ARRAY(
+                       SELECT substring(
+                                      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ', trunc(random() * 27)::integer + 1, 1)
+                       FROM generate_series(1, $1)), '')
+$$;
+
+alter function random_string_new(integer) owner to postgres;
+                   
 DROP table table_with_btree;
 
 CREATE TABLE table_with_gin(
